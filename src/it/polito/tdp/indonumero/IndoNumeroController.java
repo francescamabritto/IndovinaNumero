@@ -23,7 +23,7 @@ import javafx.scene.layout.HBox;
 public class IndoNumeroController {
 	
 	// inizializzazioni per il gioco
-	
+	/*
 	private int NMAX = 100 ;
 	private int TMAX = 7 ;  //num max tentativi
 	
@@ -32,8 +32,9 @@ public class IndoNumeroController {
 	
 	private boolean inGame = false;
 	
+	*/
 	
-	
+	private Model model;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -64,16 +65,24 @@ public class IndoNumeroController {
     	
     		// implemento questo metodo:
     		// decido il numero segreto
+    	/*
     		this.segreto = (int)(Math.random()*NMAX)+1 ;
     		
     		this.tentativi = 0 ;
     		this.inGame = true ;
     		
+    		*/
+    		this.model.newGame();
+    		
     		// disabilito il bottone Nuova Partita
     		btnNuova.setDisable(true);
     		boxGioco.setDisable(false);
-    		txtCurrent.setText(String.format("%d", this.tentativi));
-    		txtMax.setText(String.format("%d", this.TMAX));
+    		txtCurrent.setText(String.format("%d", model.getTentativi()));
+    		txtMax.setText(String.format("%d", model.getTMAX()));
+    		txtLog.clear();
+    		txtTentativo.clear();
+    		
+    		txtLog.setText(String.format("Inserisci un numero da %d a %d \n", 1, model.getNMAX()));
 
     }
 
@@ -91,22 +100,60 @@ public class IndoNumeroController {
     		try {
     			//converto la stringa in intero:
     			int num = Integer.parseInt(numS) ;
-    			if(num==this.segreto) {
+    			//il numero era effettivamente un intero
+    			
+    			if (!model.valoreValido(num)) {
+    				txtLog.appendText("Valore fuori dall'intervallo consentito\n");
+    				return;
+    			}
+    			
+    			
+    			int risultato = model.tentativo(num);
+    			
+    			if (risultato==0)
+    				txtLog.appendText("Hai vinto!");
+    			else if(risultato>0)
+    				txtLog.appendText("Troppo alto");
+    			else if(risultato<0)
+    				txtLog.appendText("Troppo basso");
+    			
+    			
+    			if(!model.isInGame()) {
+    				//la partita è finita
+    				if(risultato!=0) {
+    					txtLog.appendText("La partita è finita");
+    					txtLog.appendText(String.format("Il numero segreto era: %d\n", model.getSegreto()));
+    				}
+    				
+    				boxGioco.setDisable(true);
+    				btnNuova.setDisable(false);
+    				
+    			}
+    		
+   	
+    			
+    		//da qui 
+    			/*	
+    			if(num==this.segreto()) {
+    			
     				//ha indovinato
     				txtLog.appendText("Hai vinto!!\n");
     				// chiudi partita
     				boxGioco.setDisable(true);
     				btnNuova.setDisable(false);
+    				this.model.setInGame(false);
     			}else {
     				//tentativo errato
-    				this.tentativi++;
-    				txtCurrent.setText(String.format("%d",this.tentativi));
+    				this.model.setTentativi(model.getTentativi()+1);
+    				txtCurrent.setText(String.format("%d",this.model.getTentativi()));
     				// se è l'ultimo hai perso
-    				if(this.tentativi==TMAX) {
-    					txtLog.appendText(String.format("Hai perso il numero era %d \n", this.segreto));
+    				if(this.model.getTentativi()==model.getTMAX()) {
+    					txtLog.appendText(String.format("Hai perso il numero era %d \n", this.model.getSegreto()));
+    					boxGioco.setDisable(true);
+        				btnNuova.setDisable(false);
     				}else {
     				//se non è l'ultimo puoi riprovare
-    					if(num<segreto) {
+    					if(num<model.getSegreto()) {
     						txtLog.appendText("Troppo basso\n");
     					}else {
     						txtLog.appendText("Troppo alto\n");
@@ -114,14 +161,17 @@ public class IndoNumeroController {
     				}
     			}
     			// il numero inserito era effettivamente un intero
-    			
+    		// a qui	 
+    			*/
     		} catch(NumberFormatException ex) {
     			txtLog.appendText("Il dato inserito non è numerico");
     			return ;
     		}
     		
-    		
     }
+    
+    
+    
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -132,5 +182,17 @@ public class IndoNumeroController {
         assert txtTentativo != null : "fx:id=\"txtTentativo\" was not injected: check your FXML file 'IndoNumero.fxml'.";
         assert txtLog != null : "fx:id=\"txtLog\" was not injected: check your FXML file 'IndoNumero.fxml'.";
 
+    }
+    
+    public Model getModel() {
+    		return model;
+    }
+    
+    public void setModel(Model model) {
+    		this.model= model;
+    		
+    		/* dico a una proprietà dell interfaccia di collegarsi a 
+    		   una proprietà del modello: */
+    		// txtCurrent.textProperty().bind(model.tentativiProperty);
     }
 }
